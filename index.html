@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Pengadaan Infrastruktur AI</title>
+    <meta name="description"
+        content="Kalkulator untuk menghitung kebutuhan GPU dan CPU untuk pengadaan infrastruktur AI">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="background-gradient"></div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>
+                    <span class="icon">🤖</span>
+                    Kalkulator Pengadaan AI
+                </h1>
+                <p class="subtitle">Hitung kebutuhan infrastruktur GPU & CPU untuk deployment AI</p>
+                <p class="data-disclaimer">
+                    ℹ️ <strong>Catatan:</strong> Harga GPU/CPU adalah estimasi pasar (bukan data resmi vendor).
+                    Kurs USD-IDR diambil dari API real-time. Semua harga ditampilkan dalam Rupiah.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Calculator Form -->
+        <section class="calculator-section">
+            <div class="glass-card">
+                <h2>📊 Konfigurasi Kebutuhan</h2>
+
+                <form id="calculatorForm">
+                    <!-- Infrastructure Type -->
+                    <div class="form-group">
+                        <label>
+                            <span class="icon">🏗️</span>
+                            Tipe Infrastruktur
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-card">
+                                <input type="radio" name="infraType" value="gpu" required checked>
+                                <div class="radio-content">
+                                    <span class="radio-icon">🎮</span>
+                                    <span class="radio-label">GPU</span>
+                                    <span class="radio-desc">Performa Tinggi</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="infraType" value="cpu">
+                                <div class="radio-content">
+                                    <span class="radio-icon">⚙️</span>
+                                    <span class="radio-label">CPU</span>
+                                    <span class="radio-desc">Hemat Biaya</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Model Selection -->
+                    <div class="form-group">
+                        <label for="modelId">
+                            <span class="icon">🤖</span>
+                            Model AI
+                        </label>
+                        <select id="modelId" required>
+                            <option value="">Pilih model AI...</option>
+                        </select>
+                        <small id="modelInfo" class="form-hint"></small>
+                    </div>
+
+                    <!-- User Counts -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="totalUsers">
+                                <span class="icon">👥</span>
+                                Total User
+                            </label>
+                            <input type="number" id="totalUsers" min="1" value="1000" required>
+                            <small>Jumlah total pengguna sistem</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="concurrentUsers">
+                                <span class="icon">👤</span>
+                                Concurrent User
+                            </label>
+                            <input type="number" id="concurrentUsers" min="1" value="100" required>
+                            <small>User aktif bersamaan</small>
+                        </div>
+                    </div>
+
+                    <!-- GPU Selection -->
+                    <div class="form-group" id="gpuGroup">
+                        <label for="gpuId">
+                            <span class="icon">🎮</span>
+                            GPU
+                        </label>
+                        <select id="gpuId">
+                            <option value="">Pilih GPU...</option>
+                        </select>
+                    </div>
+
+                    <!-- CPU Selection -->
+                    <div class="form-group" id="cpuGroup" style="display: none;">
+                        <label for="cpuId">
+                            <span class="icon">⚙️</span>
+                            CPU Server
+                        </label>
+                        <select id="cpuId">
+                            <option value="">Pilih CPU...</option>
+                        </select>
+                    </div>
+
+                    <!-- Calculate Button -->
+                    <button type="submit" class="btn-primary" id="calculateBtn">
+                        <span class="btn-icon">🚀</span>
+                        <span>Hitung Kebutuhan</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSection" style="display: none;">
+            <!-- GPU Results -->
+            <div id="gpuResults" class="results-container" style="display: none;">
+                <div class="glass-card">
+                    <h2>💎 Hasil Perhitungan GPU</h2>
+                    <div class="results-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🎮</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Jumlah GPU Dibutuhkan</div>
+                                <div class="stat-value" id="gpuCount">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Biaya per GPU</div>
+                                <div class="stat-value" id="gpuCostPerUnit">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card highlight">
+                            <div class="stat-icon">💵</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Total Investasi</div>
+                                <div class="stat-value" id="gpuTotalCost">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Utilisasi</div>
+                                <div class="stat-value" id="gpuUtilization">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="details-section">
+                        <h3>Detail Teknis</h3>
+                        <div id="gpuDetails"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CPU Results -->
+            <div id="cpuResults" class="results-container" style="display: none;">
+                <div class="glass-card">
+                    <h2>⚙️ Hasil Perhitungan CPU</h2>
+                    <div class="results-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🖥️</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Jumlah Server Dibutuhkan</div>
+                                <div class="stat-value" id="cpuCount">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Biaya per Server</div>
+                                <div class="stat-value" id="cpuCostPerUnit">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card highlight">
+                            <div class="stat-icon">💵</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Total Investasi</div>
+                                <div class="stat-value" id="cpuTotalCost">-</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Utilisasi</div>
+                                <div class="stat-value" id="cpuUtilization">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="details-section">
+                        <h3>Detail Teknis</h3>
+                        <div id="cpuDetails"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Results -->
+            <div id="comparisonResults" style="display: none;"></div>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Menghitung kebutuhan infrastruktur...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 Kalkulator Pengadaan AI - Kemenkomdigi</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
